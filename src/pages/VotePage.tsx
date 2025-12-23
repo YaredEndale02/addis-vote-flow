@@ -1,24 +1,43 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NomineeCard from "@/components/NomineeCard";
 import { Button } from "@/components/ui/button";
 import { categories, nominees } from "@/data/votingData";
 import { useVotingStore } from "@/store/votingStore";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { ArrowLeft, ArrowRight, Check, LogIn } from "lucide-react";
 import { toast } from "sonner";
 
 const VotePage = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
-  const { setVote, getVote, getVotedCategories } = useVotingStore();
+  const { user } = useAuth();
+  const { setVote, getVote, getVotedCategories, submitVoteToDb, loadVotesFromDb, syncWithDb } = useVotingStore();
   
   const category = categories.find((c) => c.id === categoryId);
   const categoryNominees = nominees.filter((n) => n.categoryId === categoryId);
   const currentVote = getVote(categoryId || "");
   const [selectedNominee, setSelectedNominee] = useState<string | null>(currentVote || null);
   const [hasConfirmed, setHasConfirmed] = useState(!!currentVote);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Load votes from DB when user logs in
+  useEffect(() => {
+    if (user && !syncWithDb) {
+      loadVotesFromDb(user.id);
+    }
+  }, [user, syncWithDb, loadVotesFromDb]);
+
+  // Update selected nominee when vote changes
+  useEffect(() => {
+    const vote = getVote(categoryId || "");
+    if (vote) {
+      setSelectedNominee(vote);
+      setHasConfirmed(true);
+    }
+  }, [categoryId, getVote]);
 
   // Navigation helpers
   const currentIndex = categories.findIndex((c) => c.id === categoryId);
@@ -48,13 +67,37 @@ const VotePage = () => {
     setHasConfirmed(false);
   };
 
-  const handleConfirmVote = () => {
-    if (selectedNominee && categoryId) {
+  const handleConfirmVote = async () => {
+    if (!selectedNominee || !categoryId) return;
+
+    // If user is not logged in, prompt to sign in
+    if (!user) {
+      toast.info("Sign in required", {
+        description: "Please sign in to save your vote.",
+        action: {
+          label: "Sign In",
+          onClick: () => navigate("/auth"),
+        },
+      });
+      // Still save locally for now
       setVote(categoryId, selectedNominee);
+      setHasConfirmed(true);
+      return;
+    }
+
+    setSubmitting(true);
+    const success = await submitVoteToDb(user.id, categoryId, selectedNominee);
+    setSubmitting(false);
+
+    if (success) {
       setHasConfirmed(true);
       const nominee = categoryNominees.find((n) => n.id === selectedNominee);
       toast.success(`Vote confirmed for ${nominee?.name}!`, {
-        description: `Your vote in "${category.name}" has been recorded.`,
+        description: `Your vote in "${category.name}" has been saved.`,
+      });
+    } else {
+      toast.error("Failed to save vote", {
+        description: "Please try again.",
       });
     }
   };
@@ -73,6 +116,19 @@ const VotePage = () => {
             <ArrowLeft className="w-4 h-4" />
             Back to Categories
           </Link>
+
+          {/* Not logged in banner */}
+          {!user && (
+            <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-6 flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-3">
+                <LogIn className="w-5 h-5 text-primary" />
+                <span className="text-sm">Sign in to save your votes permanently</span>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/auth">Sign In</Link>
+              </Button>
+            </div>
+          )}
 
           {/* Category Header */}
           <div className="text-center mb-12 animate-slide-up">
@@ -129,9 +185,20 @@ const VotePage = () => {
           {/* Confirm Button */}
           {selectedNominee && !hasConfirmed && (
             <div className="flex justify-center mb-8 animate-fade-in">
-              <Button variant="gold" size="lg" onClick={handleConfirmVote}>
-                <Check className="w-5 h-5 mr-2" />
-                Confirm Vote
+              <Button 
+                variant="gold" 
+                size="lg" 
+                onClick={handleConfirmVote}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <span className="animate-pulse">Saving...</span>
+                ) : (
+                  <>
+                    <Check className="w-5 h-5 mr-2" />
+                    Confirm Vote
+                  </>
+                )}
               </Button>
             </div>
           )}
@@ -142,7 +209,10 @@ const VotePage = () => {
               <Check className="w-12 h-12 text-accent mx-auto mb-3" />
               <h3 className="font-display text-xl tracking-wide mb-2">Vote Recorded!</h3>
               <p className="text-muted-foreground">
-                Thank you for voting in {category.name}. You can change your vote until the deadline.
+                {user 
+                  ? `Thank you for voting in ${category.name}. You can change your vote until the deadline.`
+                  : `Vote saved locally. Sign in to save permanently.`
+                }
               </p>
             </div>
           )}
