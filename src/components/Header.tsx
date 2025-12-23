@@ -1,11 +1,15 @@
-import { Link, useLocation } from "react-router-dom";
-import { Trophy, Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Trophy, Menu, X, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   const navLinks = [
     { path: "/", label: "Home" },
@@ -14,6 +18,12 @@ const Header = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("Signed out successfully");
+    navigate("/");
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
@@ -49,9 +59,28 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
-            <Button variant="hero" size="sm" asChild>
-              <Link to="/categories">Vote Now</Link>
-            </Button>
+            
+            {user ? (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <User className="w-4 h-4" />
+                  <span className="max-w-[120px] truncate">{user.email}</span>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/auth">Sign In</Link>
+                </Button>
+                <Button variant="hero" size="sm" asChild>
+                  <Link to="/categories">Vote Now</Link>
+                </Button>
+              </div>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -82,11 +111,32 @@ const Header = () => {
                   {link.label}
                 </Link>
               ))}
-              <Button variant="hero" asChild className="mt-2">
-                <Link to="/categories" onClick={() => setMobileMenuOpen(false)}>
-                  Vote Now
-                </Link>
-              </Button>
+              
+              {user ? (
+                <>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                    <User className="w-4 h-4" />
+                    <span className="truncate">{user.email}</span>
+                  </div>
+                  <Button variant="outline" onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" asChild>
+                    <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                      Sign In
+                    </Link>
+                  </Button>
+                  <Button variant="hero" asChild className="mt-2">
+                    <Link to="/categories" onClick={() => setMobileMenuOpen(false)}>
+                      Vote Now
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         )}
