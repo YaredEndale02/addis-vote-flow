@@ -177,16 +177,17 @@ export type Database = {
       }
     }
     Views: {
-      vote_counts: {
-        Row: {
-          category_id: string | null
-          nominee_id: string | null
-          vote_count: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
+      get_vote_counts: {
+        Args: never
+        Returns: {
+          category_id: string
+          nominee_id: string
+          vote_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
