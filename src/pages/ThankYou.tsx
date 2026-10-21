@@ -17,7 +17,7 @@ const ThankYou = () => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: "Addis Games Week Awards 2024",
+        title: "Addis Games Week Awards 2026",
         text: "I just voted in the Addis Games Week Awards! Cast your vote too!",
         url: window.location.origin,
       });

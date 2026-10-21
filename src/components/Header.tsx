@@ -15,6 +15,7 @@ const Header = () => {
     { path: "/", label: "Home" },
     { path: "/categories", label: "Categories" },
     { path: "/leaderboard", label: "Leaderboard" },
+    { path: "/hall-of-fame", label: "Hall of Fame" },
     { path: "/rules", label: "Rules" },
   ];
 
@@ -40,7 +41,7 @@ const Header = () => {
                 ADDIS GAMES WEEK
               </span>
               <span className="text-[10px] text-muted-foreground tracking-widest uppercase">
-                Awards 2024
+                Awards 2026
               </span>
             </div>
           </Link>

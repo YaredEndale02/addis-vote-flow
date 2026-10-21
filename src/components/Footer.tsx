@@ -15,7 +15,7 @@ const Footer = () => {
               <div className="flex flex-col">
                 <span className="font-display text-lg tracking-wider">ADDIS GAMES WEEK</span>
                 <span className="text-[10px] text-muted-foreground tracking-widest uppercase">
-                  Awards 2024
+                  Awards 2026
                 </span>
               </div>
             </div>
@@ -31,7 +31,13 @@ const Footer = () => {
               Home
             </Link>
             <Link to="/categories" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Vote Now
+              Vote Now (2026)
+            </Link>
+            <Link to="/leaderboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Live Leaderboard
+            </Link>
+            <Link to="/hall-of-fame" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Hall of Fame (Past Winners)
             </Link>
             <Link to="/rules" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Rules & Transparency
@@ -58,7 +64,7 @@ const Footer = () => {
 
         <div className="border-t border-border/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            © 2024 Addis Games Week. All rights reserved.
+            © 2026 Addis Games Week. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link to="/rules" className="text-xs text-muted-foreground hover:text-foreground transition-colors">

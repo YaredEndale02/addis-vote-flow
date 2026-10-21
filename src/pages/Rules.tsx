@@ -49,7 +49,7 @@ const Rules = () => {
                 <div>
                   <h3 className="font-semibold mb-1">Voting Period</h3>
                   <p className="text-sm text-muted-foreground">
-                    Voting opens on December 15, 2024 and closes on January 31, 2025 at 11:59 PM EAT.
+                    Voting opens on November 1, 2026 and closes on December 15, 2026 at 11:59 PM EAT.
                   </p>
                 </div>
               </div>
@@ -141,7 +141,7 @@ const Rules = () => {
                 <div>
                   <h3 className="font-semibold mb-1">Results Announcement</h3>
                   <p className="text-sm text-muted-foreground">
-                    Winners will be announced at the Addis Games Week Award Ceremony in February 2025.
+                    Winners will be announced at the Addis Games Week Award Ceremony in December 2026.
                   </p>
                 </div>
               </div>
